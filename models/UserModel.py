@@ -1,9 +1,44 @@
+"""
+User model for managing user data and authentication.
+Implements secure password hashing using bcrypt.
+"""
 from datetime import datetime
 from models.db import get_db_connection
+from flask_bcrypt import Bcrypt
+
+bcrypt = Bcrypt()
+
 
 class UserModel:
     def __init__(self):
         pass
+    
+    @staticmethod
+    def hash_password(password):
+        """
+        Hash a password using bcrypt.
+        
+        Args:
+            password (str): Plain text password
+            
+        Returns:
+            str: Hashed password
+        """
+        return bcrypt.generate_password_hash(password).decode('utf-8')
+    
+    @staticmethod
+    def verify_password(plain_password, hashed_password):
+        """
+        Verify a password against its hash.
+        
+        Args:
+            plain_password (str): Plain text password to verify
+            hashed_password (str): Hashed password from database
+            
+        Returns:
+            bool: True if password matches, False otherwise
+        """
+        return bcrypt.check_password_hash(hashed_password, plain_password)
 
     def find_by_username(self, username):
         """mencari user berdasarkan username"""
@@ -39,14 +74,28 @@ class UserModel:
             connection.close()
     
     def create(self, username, email, password, role='donatur'):
-        """membuat user baru"""
+        """
+        Create a new user with hashed password.
+        
+        Args:
+            username (str): Unique username
+            email (str): User email address
+            password (str): Plain text password (will be hashed)
+            role (str): User role ('admin' or 'donatur'), defaults to 'donatur'
+            
+        Returns:
+            int: ID of the newly created user
+        """
         connection = get_db_connection()
         try:
             with connection.cursor() as cursor:
+                # Hash the password before storing
+                hashed_password = self.hash_password(password)
+                
                 sql = """INSERT INTO users (username, email, password, role, created_at) 
                          VALUES (%s, %s, %s, %s, %s)"""
                 created_at = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-                cursor.execute(sql, (username, email, password, role, created_at))
+                cursor.execute(sql, (username, email, hashed_password, role, created_at))
             connection.commit()
             return cursor.lastrowid
         finally:
@@ -74,3 +123,22 @@ class UserModel:
                 return cursor.fetchall()
         finally:
             connection.close()
+    
+    @staticmethod
+    def validate_password_strength(password):
+        """
+        Validate password strength.
+        
+        Args:
+            password (str): Password to validate
+            
+        Returns:
+            tuple: (bool, str) - (is_valid, error_message)
+        """
+        if len(password) < 8:
+            return False, "Password minimal 8 karakter"
+        
+        # Check for at least one number or special character (recommended but not enforced strictly)
+        # For now, just enforce minimum length
+        
+        return True, ""

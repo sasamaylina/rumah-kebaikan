@@ -1,15 +1,44 @@
+"""
+Rumah Kebaikan - E-Fundraising Platform
+Main application file with Flask routes and security configurations.
+"""
 from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask_wtf.csrf import CSRFProtect
 from models.CampaignModel import CampaignModel
 from models.DonationModel import DonationModel
 from models.UserModel import UserModel
+from config import get_config
+import os
 
+# Initialize Flask app
 app = Flask(__name__)
-app.secret_key = 'rumah_kebaikan_secret'
+
+# Load configuration from environment
+config = get_config()
+app.config.from_object(config)
+
+# Initialize CSRF protection
+csrf = CSRFProtect(app)
 
 # Initialize models
 campaign_model = CampaignModel()
 donation_model = DonationModel()
 user_model = UserModel()
+
+
+# Security Headers Middleware
+@app.after_request
+def set_security_headers(response):
+    """Add security headers to all responses."""
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'SAMEORIGIN'
+    response.headers['X-XSS-Protection'] = '1; mode=block'
+    
+    # Strict-Transport-Security only for HTTPS
+    if request.is_secure:
+        response.headers['Strict-Transport-Security'] = 'max-age=31536000; includeSubDomains'
+    
+    return response
 
 # ============================================
 # Authentication Helper Functions
@@ -35,19 +64,27 @@ def index():
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
+    """User login route with secure password verification."""
     if is_logged_in():
         return redirect(url_for('index'))
     
     if request.method == 'POST':
-        username = request.form['username']
-        password = request.form['password']
+        username = request.form.get('username', '').strip()
+        password = request.form.get('password', '')
+        
+        if not username or not password:
+            flash('Username dan password harus diisi', 'error')
+            return render_template('login.html')
         
         user = user_model.find_by_username(username)
         
-        if user and user['password'] == password:
+        # Use secure password verification
+        if user and user_model.verify_password(password, user['password']):
             session['user_id'] = user['id']
             session['username'] = user['username']
             session['role'] = user['role']
+            session.permanent = True  # Enable permanent session with timeout
+            
             flash('Login berhasil! Selamat datang, ' + user['username'], 'success')
             
             if user['role'] == 'admin':
@@ -61,18 +98,29 @@ def login():
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
+    """User registration route with password strength validation."""
     if is_logged_in():
         return redirect(url_for('index'))
     
     if request.method == 'POST':
-        username = request.form['username']
-        email = request.form['email']
-        password = request.form['password']
-        confirm_password = request.form['confirm_password']
+        username = request.form.get('username', '').strip()
+        email = request.form.get('email', '').strip()
+        password = request.form.get('password', '')
+        confirm_password = request.form.get('confirm_password', '')
         
         # Validation
+        if not username or not email or not password:
+            flash('Semua field harus diisi!', 'error')
+            return render_template('register.html')
+        
         if password != confirm_password:
             flash('Password tidak cocok!', 'error')
+            return render_template('register.html')
+        
+        # Validate password strength
+        is_valid, error_msg = user_model.validate_password_strength(password)
+        if not is_valid:
+            flash(error_msg, 'error')
             return render_template('register.html')
         
         if user_model.find_by_username(username):
@@ -83,8 +131,8 @@ def register():
             flash('Email sudah terdaftar!', 'error')
             return render_template('register.html')
         
-        # Create user
-        user_model.create(username, email, password, 'donor')
+        # Create user with hashed password
+        user_model.create(username, email, password, 'donatur')
         flash('Registrasi berhasil! Silakan login.', 'success')
         return redirect(url_for('login'))
     

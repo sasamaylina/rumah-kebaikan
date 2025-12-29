@@ -1,0 +1,19 @@
+# Flask Web Framework
+Flask==3.0.0
+Werkzeug==3.0.1
+
+# Database Driver
+PyMySQL==1.1.0
+
+# Password Hashing
+Flask-Bcrypt==1.0.1
+
+# Environment Variables
+python-dotenv==1.0.0
+
+# CSRF Protection and Forms
+Flask-WTF==1.2.1
+WTForms==3.1.1
+
+# Security
+cryptography==41.0.7
