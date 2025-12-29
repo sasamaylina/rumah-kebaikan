@@ -30,6 +30,7 @@ class UserModel:
     def verify_password(plain_password, hashed_password):
         """
         Verify a password against its hash.
+        Supports both bcrypt hashed passwords and legacy plain text passwords.
         
         Args:
             plain_password (str): Plain text password to verify
@@ -38,7 +39,16 @@ class UserModel:
         Returns:
             bool: True if password matches, False otherwise
         """
-        return bcrypt.check_password_hash(hashed_password, plain_password)
+        # Check if password is bcrypt hashed (starts with $2b$, $2a$, or $2y$)
+        if hashed_password and hashed_password.startswith('$2'):
+            try:
+                return bcrypt.check_password_hash(hashed_password, plain_password)
+            except ValueError:
+                return False
+        else:
+            # Legacy plain text password comparison
+            # WARNING: This is for migration period only, run db_migration.py!
+            return hashed_password == plain_password
 
     def find_by_username(self, username):
         """mencari user berdasarkan username"""

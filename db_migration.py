@@ -4,9 +4,18 @@ Migrates existing plain text passwords to bcrypt hashed passwords.
 """
 import pymysql
 from flask_bcrypt import Bcrypt
-from config import get_config
+import os
 
 bcrypt = Bcrypt()
+
+# Database configuration - UPDATE THESE FOR PYTHONANYWHERE
+# Or set environment variables before running
+DB_CONFIG = {
+    'host': os.getenv('DB_HOST', 'rumahkebaikan.mysql.pythonanywhere-services.com'),
+    'user': os.getenv('DB_USER', 'rumahkebaikan'),
+    'password': os.getenv('DB_PASSWORD', ''),  # SET THIS!
+    'database': os.getenv('DB_NAME', 'rumahkebaikan$rumahdb'),
+}
 
 def migrate_passwords():
     """
@@ -15,19 +24,20 @@ def migrate_passwords():
     IMPORTANT: This script should only be run ONCE on existing database.
     After migration, all new passwords will be automatically hashed.
     """
-    config = get_config()
     
     print("=" * 60)
     print("Database Password Migration Script")
     print("=" * 60)
-    print(f"Connecting to database: {config.DB_NAME} at {config.DB_HOST}")
+    print(f"Connecting to database: {DB_CONFIG['database']} at {DB_CONFIG['host']}")
+    
+    connection = None
     
     try:
         connection = pymysql.connect(
-            host=config.DB_HOST,
-            user=config.DB_USER,
-            password=config.DB_PASSWORD,
-            database=config.DB_NAME,
+            host=DB_CONFIG['host'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            database=DB_CONFIG['database'],
             cursorclass=pymysql.cursors.DictCursor
         )
         
@@ -95,7 +105,7 @@ def fix_user_roles():
     Fix any empty role values in the database.
     Changes empty string roles to 'donatur'.
     """
-    config = get_config()
+    connection = None
     
     print("\n" + "=" * 60)
     print("Fixing User Roles")
@@ -103,10 +113,10 @@ def fix_user_roles():
     
     try:
         connection = pymysql.connect(
-            host=config.DB_HOST,
-            user=config.DB_USER,
-            password=config.DB_PASSWORD,
-            database=config.DB_NAME,
+            host=DB_CONFIG['host'],
+            user=DB_CONFIG['user'],
+            password=DB_CONFIG['password'],
+            database=DB_CONFIG['database'],
             cursorclass=pymysql.cursors.DictCursor
         )
         
