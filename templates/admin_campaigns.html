@@ -1,0 +1,93 @@
+{% extends "layout.html" %}
+
+{% block title %}Kelola Campaign - Rumah Kebaikan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-megaphone me-2"></i>Kelola Campaign</h2>
+            <p class="text-muted mb-0">Daftar semua campaign yang tersedia</p>
+        </div>
+        <a href="{{ url_for('admin_campaign_create') }}" class="btn btn-primary-teal">
+            <i class="bi bi-plus-circle me-2"></i>Tambah Campaign Baru
+        </a>
+    </div>
+
+    {% if campaigns %}
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Nama Campaign</th>
+                            <th>Alamat</th>
+                            <th>Target</th>
+                            <th>Terkumpul</th>
+                            <th>Progress</th>
+                            <th>Status</th>
+                            <th>Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for campaign in campaigns %}
+                        <tr>
+                            <td><strong>{{ campaign.id }}</strong></td>
+                            <td>
+                                <a href="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" class="text-decoration-none text-black fw-bold">
+                                    {{ campaign.nama }}
+                                </a>
+                            </td>
+                            <td><small class="text-muted">{{ campaign.alamat or '-' }}</small></td>
+                            <td>Rp {{ "{:,.0f}".format(campaign.kebutuhan) }}</td>
+                            <td class="text-success fw-bold">Rp {{ "{:,.0f}".format(campaign.terkumpul) }}</td>
+                            <td style="min-width: 120px;">
+                                {% set progress = (campaign.terkumpul / campaign.kebutuhan * 100) if campaign.kebutuhan > 0 else 0 %}
+                                <div class="progress" style="height: 8px;">
+                                    <div class="progress-bar bg-{{ 'success' if progress >= 100 else 'primary' }}" 
+                                         style="width: {{ [progress|round|int, 100]|min }}%"></div>
+                                </div>
+                                <small class="text-muted">{{ "%.1f"|format(progress) }}%</small>
+                            </td>
+                            <td>
+                                {% if campaign.is_active %}
+                                <span class="badge bg-success">Aktif</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Nonaktif</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a href="{{ url_for('admin_campaign_edit', campaign_id=campaign.id) }}" 
+                                       class="btn btn-warning text-white" title="Edit">
+                                        <i class="bi bi-pencil"></i>
+                                    </a>
+                                    <form method="POST" action="{{ url_for('admin_campaign_delete', campaign_id=campaign.id) }}" 
+                                          class="d-inline" onsubmit="return confirm('Apakah Anda yakin ingin menghapus campaign {{ campaign.nama }}?')">
+                                        <button type="submit" class="btn btn-danger btn-sm" title="Hapus">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5">
+        <i class="bi bi-megaphone display-1 text-muted"></i>
+        <h4 class="mt-3">Belum Ada Campaign</h4>
+        <p class="text-muted">Buat campaign pertama Anda sekarang!</p>
+        <a href="{{ url_for('admin_campaign_create') }}" class="btn btn-primary-teal">
+            <i class="bi bi-plus-circle me-2"></i>Buat Campaign
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

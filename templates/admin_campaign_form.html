@@ -1,0 +1,96 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ 'Edit' if campaign else 'Buat' }} Campaign - Rumah Kebaikan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_dashboard') }}">Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('admin_campaigns') }}">Campaigns</a></li>
+            <li class="breadcrumb-item active">{{ 'Edit' if campaign else 'Buat Baru' }}</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-dark-teal text-white py-3">
+                    <h4 class="fw-bold mb-0">
+                        <i class="bi bi-{{ 'pencil' if campaign else 'plus-circle' }} me-2"></i>
+                        {{ 'Edit Campaign' if campaign else 'Buat Campaign Baru' }}
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="nama" class="form-label fw-bold">Nama Campaign <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="nama" name="nama" 
+                                   value="{{ campaign.nama if campaign else '' }}" 
+                                   placeholder="Contoh: Bantu Korban Banjir Jakarta" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="deskripsi" class="form-label fw-bold">Deskripsi</label>
+                            <textarea class="form-control" id="deskripsi" name="deskripsi" rows="4" 
+                                      placeholder="Jelaskan tentang campaign ini...">{{ campaign.deskripsi if campaign else '' }}</textarea>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="alamat" class="form-label fw-bold">Lokasi/Alamat</label>
+                            <input type="text" class="form-control" id="alamat" name="alamat" 
+                                   value="{{ campaign.alamat if campaign else '' }}" 
+                                   placeholder="Contoh: Jakarta Selatan">
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="kebutuhan" class="form-label fw-bold">Target Donasi (Rp) <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="kebutuhan" name="kebutuhan" 
+                                           value="{{ campaign.kebutuhan if campaign else '' }}" 
+                                           placeholder="50000000" min="0" required>
+                                </div>
+                            </div>
+                            
+                            {% if campaign %}
+                            <div class="col-md-6 mb-3">
+                                <label for="terkumpul" class="form-label fw-bold">Donasi Terkumpul (Rp)</label>
+                                <div class="input-group">
+                                    <span class="input-group-text">Rp</span>
+                                    <input type="number" class="form-control" id="terkumpul" name="terkumpul" 
+                                           value="{{ campaign.terkumpul if campaign else 0 }}" min="0">
+                                </div>
+                                <small class="text-muted">Biasanya diupdate otomatis dari donasi</small>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-4">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_active" name="is_active" 
+                                       {{ 'checked' if (campaign and campaign.is_active) or not campaign else '' }}>
+                                <label class="form-check-label fw-bold" for="is_active">Campaign Aktif</label>
+                            </div>
+                            <small class="text-muted">Campaign aktif akan ditampilkan ke publik</small>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary-teal">
+                                <i class="bi bi-check-circle me-2"></i>
+                                {{ 'Simpan Perubahan' if campaign else 'Buat Campaign' }}
+                            </button>
+                            <a href="{{ url_for('admin_campaigns') }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-x-circle me-2"></i>Batal
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,169 @@
+{% extends "layout.html" %}
+
+{% block title %}Dashboard Admin - Rumah Kebaikan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+            <h2 class="fw-bold mb-0"><i class="bi bi-speedometer2 me-2"></i>Dashboard Admin</h2>
+            <p class="text-muted mb-0">Selamat datang, {{ session.username }}!</p>
+        </div>
+        <a href="{{ url_for('admin_campaign_create') }}" class="btn btn-primary-teal">
+            <i class="bi bi-plus-circle me-2"></i>Buat Campaign Baru
+        </a>
+    </div>
+
+    <!-- Statistics Cards -->
+    <div class="row g-4 mb-5">
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-primary-teal rounded-circle p-3 text-white">
+                                <i class="bi bi-megaphone fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="fw-bold mb-0">{{ stats.total_campaigns }}</h3>
+                            <small class="text-muted">Total Campaign</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-success rounded-circle p-3 text-white">
+                                <i class="bi bi-cash-stack fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="fw-bold mb-0">Rp {{ "{:,.0f}".format(stats.total_donations) }}</h3>
+                            <small class="text-muted">Total Donasi</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-info rounded-circle p-3 text-white">
+                                <i class="bi bi-people fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="fw-bold mb-0">{{ stats.total_donors }}</h3>
+                            <small class="text-muted">Total Donatur</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-body">
+                    <div class="d-flex align-items-center">
+                        <div class="flex-shrink-0">
+                            <div class="bg-warning rounded-circle p-3 text-white">
+                                <i class="bi bi-receipt fs-4"></i>
+                            </div>
+                        </div>
+                        <div class="flex-grow-1 ms-3">
+                            <h3 class="fw-bold mb-0">{{ stats.total_transactions }}</h3>
+                            <small class="text-muted">Total Transaksi</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        <!-- Recent Donations -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-clock-history me-2"></i>Donasi Terbaru</h5>
+                    <a href="{{ url_for('admin_donations') }}" class="btn btn-sm btn-outline-secondary">Lihat Semua</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if recent_donations %}
+                    <div class="list-group list-group-flush">
+                        {% for donation in recent_donations %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ donation.username }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ donation.campaign_nama }}</small>
+                                </div>
+                                <div class="text-end">
+                                    <span class="text-success fw-bold">Rp {{ "{:,.0f}".format(donation.jumlah) }}</span>
+                                    <br>
+                                    <small class="text-muted">{{ donation.created_at.strftime('%d/%m/%Y') if donation.created_at else '-' }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">Belum ada donasi</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Recent Campaigns -->
+        <div class="col-lg-6">
+            <div class="card border-0 shadow-sm h-100">
+                <div class="card-header bg-white d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-megaphone me-2"></i>Campaign Terbaru</h5>
+                    <a href="{{ url_for('admin_campaigns') }}" class="btn btn-sm btn-outline-secondary">Lihat Semua</a>
+                </div>
+                <div class="card-body p-0">
+                    {% if campaigns %}
+                    <div class="list-group list-group-flush">
+                        {% for campaign in campaigns %}
+                        <div class="list-group-item">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <strong>{{ campaign.nama }}</strong>
+                                    <br>
+                                    <small class="text-muted">{{ campaign.alamat }}</small>
+                                </div>
+                                <div class="text-end">
+                                    {% set progress = (campaign.terkumpul / campaign.kebutuhan * 100) if campaign.kebutuhan > 0 else 0 %}
+                                    <span class="badge bg-{{ 'success' if progress >= 100 else 'warning' if progress >= 50 else 'secondary' }}">
+                                        {{ "%.0f"|format(progress) }}%
+                                    </span>
+                                    <br>
+                                    <small class="text-muted">Rp {{ "{:,.0f}".format(campaign.terkumpul) }}</small>
+                                </div>
+                            </div>
+                        </div>
+                        {% endfor %}
+                    </div>
+                    {% else %}
+                    <div class="text-center py-4">
+                        <p class="text-muted mb-0">Belum ada campaign</p>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

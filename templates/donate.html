@@ -1,0 +1,107 @@
+{% extends "layout.html" %}
+
+{% block title %}Donasi - {{ campaign.nama }} - Rumah Kebaikan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('campaigns') }}">Campaigns</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('campaign_detail', campaign_id=campaign.id) }}">{{ campaign.nama }}</a></li>
+            <li class="breadcrumb-item active">Donasi</li>
+        </ol>
+    </nav>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card border-0 shadow">
+                <div class="card-header bg-dark-teal text-white text-center py-3">
+                    <h4 class="fw-bold mb-0"><i class="bi bi-cash-stack me-2"></i>Form Donasi</h4>
+                </div>
+                <div class="card-body p-4">
+                    <!-- Campaign Info -->
+                    <div class="bg-light rounded p-3 mb-4">
+                        <h6 class="fw-bold mb-1">{{ campaign.nama }}</h6>
+                        <small class="text-muted"><i class="bi bi-geo-alt me-1"></i>{{ campaign.alamat or 'Indonesia' }}</small>
+                        
+                        <div class="progress mt-3" style="height: 8px;">
+                            {% set progress = (campaign.terkumpul / campaign.kebutuhan * 100) if campaign.kebutuhan > 0 else 0 %}
+                            <div class="progress-bar bg-primary" role="progressbar" style="width: {{ [progress, 100]|min }}%"></div>
+                        </div>
+                        <div class="d-flex justify-content-between mt-2">
+                            <small class="text-primary-teal fw-bold">Rp {{ "{:,.0f}".format(campaign.terkumpul) }}</small>
+                            <small class="text-muted">dari Rp {{ "{:,.0f}".format(campaign.kebutuhan) }}</small>
+                        </div>
+                    </div>
+                    
+                    <form method="POST">
+                        <div class="mb-3">
+                            <label for="jumlah" class="form-label fw-bold">Jumlah Donasi (Rp)</label>
+                            <div class="input-group input-group-lg">
+                                <span class="input-group-text">Rp</span>
+                                <input type="number" class="form-control" id="jumlah" name="jumlah" 
+                                       placeholder="10000" min="1000" required>
+                            </div>
+                            <small class="text-muted">Minimal donasi Rp 1.000</small>
+                        </div>
+                        
+                        <!-- Button pilihan donasi -->
+                        <div class="mb-3">
+                            <label class="form-label">Pilih Nominal:</label>
+                            <div class="row g-2">
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-secondary w-100 amount-btn" data-amount="10000">10rb</button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-secondary w-100 amount-btn" data-amount="25000">25rb</button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-secondary w-100 amount-btn" data-amount="50000">50rb</button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-secondary w-100 amount-btn" data-amount="100000">100rb</button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-secondary w-100 amount-btn" data-amount="250000">250rb</button>
+                                </div>
+                                <div class="col-4">
+                                    <button type="button" class="btn btn-outline-secondary w-100 amount-btn" data-amount="500000">500rb</button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="message" class="form-label fw-bold">Pesan / Doa (Opsional)</label>
+                            <textarea class="form-control" id="message" name="message" rows="3" 
+                                      placeholder="Tulis pesan atau doa untuk penerima donasi..."></textarea>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary-teal btn-lg">
+                                <i class="bi bi-cash-stack me-2"></i>Donasi Sekarang
+                            </button>
+                            <a href="{{ url_for('campaign_detail', campaign_id=campaign.id) }}" class="btn btn-outline-secondary">
+                                <i class="bi bi-arrow-left me-2"></i>Kembali
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.querySelectorAll('.amount-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        document.getElementById('jumlah').value = this.dataset.amount;
+        document.querySelectorAll('.amount-btn').forEach(function(b) {
+            b.classList.remove('btn-primary-teal', 'text-white');
+            b.classList.add('btn-outline-secondary');
+        });
+        this.classList.remove('btn-outline-secondary');
+        this.classList.add('btn-primary-teal', 'text-white');
+    });
+});
+</script>
+{% endblock %}

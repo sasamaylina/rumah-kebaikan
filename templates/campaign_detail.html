@@ -1,0 +1,117 @@
+{% extends "layout.html" %}
+
+{% block title %}{{ campaign.nama }} - Rumah Kebaikan{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{{ url_for('index') }}">Home</a></li>
+            <li class="breadcrumb-item"><a href="{{ url_for('campaigns') }}">Campaigns</a></li>
+            <li class="breadcrumb-item active">{{ campaign.nama }}</li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-3">
+                        <h2 class="fw-bold mb-0">{{ campaign.nama }}</h2>
+                        {% if campaign.is_active %}
+                        <span class="badge bg-success fs-6">Aktif</span>
+                        {% else %}
+                        <span class="badge bg-secondary fs-6">Selesai</span>
+                        {% endif %}
+                    </div>
+                    
+                    <p class="text-muted mb-4">
+                        <i class="bi bi-geo-alt me-1"></i>{{ campaign.alamat or 'Indonesia' }}
+                        <span class="ms-3"><i class="bi bi-calendar me-1"></i>{{ campaign.created_at.strftime('%d %B %Y') if campaign.created_at else '-' }}</span>
+                    </p>
+                    
+                    <hr>
+                    
+                    <h5 class="fw-bold mb-3">Tentang Campaign</h5>
+                    <p class="text-muted" style="white-space: pre-line;">{{ campaign.deskripsi or 'Tidak ada deskripsi.' }}</p>
+                </div>
+            </div>
+            
+            <!-- Daftar Donatur -->
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-people me-2"></i>Donatur ({{ donations|length }})</h5>
+                </div>
+                <div class="card-body">
+                    {% if donations %}
+                        <div class="list-group list-group-flush">
+                            {% for donation in donations[:10] %}
+                            <div class="list-group-item px-0">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <strong>{{ donation.username }}</strong>
+                                        <br>
+                                        <small class="text-muted">{{ donation.created_at.strftime('%d/%m/%Y %H:%M') if donation.created_at else '-' }}</small>
+                                        {% if donation.message %}
+                                        <br>
+                                        <small class="text-muted fst-italic">"{{ donation.message }}"</small>
+                                        {% endif %}
+                                    </div>
+                                    <span class="text-primary-teal fw-bold">Rp {{ "{:,.0f}".format(donation.jumlah) }}</span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% if donations|length > 10 %}
+                        <p class="text-muted text-center mt-3 mb-0">dan {{ donations|length - 10 }} donatur lainnya...</p>
+                        {% endif %}
+                    {% else %}
+                        <p class="text-muted text-center mb-0">Belum ada donatur. Jadilah yang pertama!</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-3">Progress Donasi</h5>
+                    
+                    <div class="progress mb-3" style="height: 20px;">
+                        {% set progress = (campaign.terkumpul / campaign.kebutuhan * 100) if campaign.kebutuhan > 0 else 0 %}
+                        <div class="progress-bar bg-primary" role="progressbar" style="width: {{ [progress, 100]|min }}%">
+                            {{ "%.1f"|format(progress) }}%
+                        </div>
+                    </div>
+                    
+                    <div class="row text-center mb-4">
+                        <div class="col-6">
+                            <h4 class="text-black fw-bold mb-0">Rp {{ "{:,.0f}".format(campaign.terkumpul) }}</h4>
+                            <small class="text-muted">Terkumpul</small>
+                        </div>
+                        <div class="col-6">
+                            <h4 class="text-black fw-bold mb-0">Rp {{ "{:,.0f}".format(campaign.kebutuhan) }}</h4>
+                            <small class="text-muted">Target</small>
+                        </div>
+                    </div>
+                    
+                    <div class="d-grid">
+                        {% if session.user_id %}
+                            <a href="{{ url_for('donate', campaign_id=campaign.id) }}" class="btn btn-primary-teal btn-lg">
+                                <i class="bi bi-cash-stack me-2"></i>Donasi Sekarang
+                            </a>
+                        {% else %}
+                            <a href="{{ url_for('login') }}" class="btn btn-primary-teal btn-lg">
+                                <i class="bi bi-box-arrow-in-right me-2"></i>Login untuk Donasi
+                            </a>
+                            <p class="text-center text-muted small mt-2 mb-0">
+                                Belum punya akun? <a href="{{ url_for('register') }}">Daftar</a>
+                            </p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
