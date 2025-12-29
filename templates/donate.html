@@ -35,6 +35,7 @@
                     </div>
                     
                     <form method="POST">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
                         <div class="mb-3">
                             <label for="jumlah" class="form-label fw-bold">Jumlah Donasi (Rp)</label>
                             <div class="input-group input-group-lg">
