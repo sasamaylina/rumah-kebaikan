@@ -1,19 +1,9 @@
--- =====================================================
--- Database: rumahkebaikan$rumahdb
--- Generated from PythonAnywhere MySQL Console
--- Date: 2025-12-29
--- =====================================================
-
--- Create Database
 CREATE DATABASE IF NOT EXISTS `rumahkebaikan$rumahdb` 
     DEFAULT CHARACTER SET utf8mb3 
     DEFAULT ENCRYPTION='N';
 
 USE `rumahkebaikan$rumahdb`;
 
--- =====================================================
--- Table: users
--- =====================================================
 DROP TABLE IF EXISTS `donations`;
 DROP TABLE IF EXISTS `campaigns`;
 DROP TABLE IF EXISTS `users`;
@@ -30,9 +20,6 @@ CREATE TABLE `users` (
   UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- =====================================================
--- Table: campaigns
--- =====================================================
 CREATE TABLE `campaigns` (
   `id` int NOT NULL AUTO_INCREMENT,
   `nama` varchar(255) COLLATE utf8mb4_general_ci NOT NULL,
@@ -45,9 +32,6 @@ CREATE TABLE `campaigns` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- =====================================================
--- Table: donations
--- =====================================================
 CREATE TABLE `donations` (
   `id` int NOT NULL AUTO_INCREMENT,
   `user_id` int NOT NULL,
@@ -62,10 +46,6 @@ CREATE TABLE `donations` (
   CONSTRAINT `donations_ibfk_2` FOREIGN KEY (`campaign_id`) REFERENCES `campaigns` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- =====================================================
--- INSERT DATA: users
--- ID dimasukkan manual untuk menjaga relasi
--- =====================================================
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`) VALUES
 (1, 'admin', 'admin@rumahkebaikan.id', '$2b$12$DyoyyPz5Lapb8x7u4wnJcuW3IJSOyTCFrCh7YZ92Pkv/BJW1H2tC2', 'admin', '2025-12-27 04:03:41'),
 (2, 'donor1', 'donor1@example.com', '$2b$12$hfrcyNJ6RsKMlUFFtQlQpOIvFUGZdqpwxRT3fVGCxEblSzfOH/C0C', 'donatur', '2025-12-27 04:03:41'),
@@ -98,13 +78,8 @@ INSERT INTO `users` (`id`, `username`, `email`, `password`, `role`, `created_at`
 (104, 'lucky_pratama', 'lucky.pratama@example.com', 'password123', 'donatur', '2025-12-29 09:23:05'),
 (105, 'genta', 'jaharuddinhamzah92@gmail.com', '$2b$12$4Lrgaw9YU9s96rklUKmZpuXXa5O85mG8U38KowO/T/2wDIZkiqJeG', 'donatur', '2025-12-29 10:01:58');
 
--- Set AUTO_INCREMENT untuk user berikutnya
 ALTER TABLE `users` AUTO_INCREMENT = 106;
 
--- =====================================================
--- INSERT DATA: campaigns
--- ID dimasukkan manual untuk menjaga relasi
--- =====================================================
 INSERT INTO `campaigns` (`id`, `nama`, `deskripsi`, `alamat`, `kebutuhan`, `terkumpul`, `is_active`, `created_at`) VALUES
 (33, 'Bantu Korban Banjir Jakarta', 'Bantuan makanan, pakaian, dan tempat tinggal sementara untuk korban banjir Jakarta Selatan', 'Jakarta Selatan', 50000000, 12500000, 1, '2025-12-29 09:41:50'),
 (34, 'Beasiswa Anak Yatim', 'Program beasiswa pendidikan untuk anak-anak yatim piatu', 'Bandung', 100000000, 45000000, 1, '2025-12-29 09:41:50'),
@@ -133,13 +108,8 @@ INSERT INTO `campaigns` (`id`, `nama`, `deskripsi`, `alamat`, `kebutuhan`, `terk
 (57, 'Bantuan Darurat Banjir Jakarta Utara', 'Evakuasi dan bantuan korban banjir', 'Jakarta Utara', 50000000, 10000000, 1, '2025-12-29 09:41:50'),
 (58, 'Beasiswa Prestasi Anak Bandung', 'Beasiswa untuk anak berprestasi', 'Bandung', 60000000, 20000000, 1, '2025-12-29 09:41:50');
 
--- Set AUTO_INCREMENT untuk campaign berikutnya
 ALTER TABLE `campaigns` AUTO_INCREMENT = 59;
 
--- =====================================================
--- INSERT DATA: donations
--- ID dimasukkan manual untuk menjaga relasi
--- =====================================================
 INSERT INTO `donations` (`id`, `user_id`, `campaign_id`, `jumlah`, `message`, `created_at`) VALUES
 (106, 2, 33, 500000, 'Semoga membantu korban banjir', '2025-12-29 09:52:44'),
 (107, 3, 34, 750000, 'Bantuan untuk anak yatim', '2025-12-29 09:52:44'),
@@ -172,12 +142,4 @@ INSERT INTO `donations` (`id`, `user_id`, `campaign_id`, `jumlah`, `message`, `c
 (134, 4, 53, 250000, 'Semoga segera diberi kesembuhan.', '2025-12-29 10:14:05'),
 (135, 4, 45, 500000, 'Semoga bisa bermanfaat', '2025-12-29 10:59:48');
 
--- Set AUTO_INCREMENT untuk donation berikutnya
 ALTER TABLE `donations` AUTO_INCREMENT = 136;
-
--- =====================================================
--- SELESAI
--- File ini berisi struktur tabel dan data lengkap
--- AUTO_INCREMENT sudah diset agar data baru dari sistem
--- akan memiliki ID yang otomatis increment
--- =====================================================
